@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/prefSettings" >
+        <ListPreference
+            android:key="prefMagnitude"
+            android:entries="@array/mag"
+            android:summary="@string/magSummary"
+            android:entryValues="@array/magValues"
+            android:title="@string/magTitle" />
+
+        <ListPreference
+            android:key="prefFrequency"
+            android:entries="@array/frequency"
+            android:summary="@string/freqSummary"
+            android:entryValues="@array/frequencyValues"
+            android:title="@string/freqTitle" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

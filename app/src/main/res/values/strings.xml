@@ -4,6 +4,14 @@
     <string name="app_name">Seismes</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="exit">Exit</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="title_activity_prefs">Préférences</string>
+    <string name="prefSettings">Préférences affichage</string>
+    <string name="freqSummary">Modifier la fréquence</string>
+    <string name="freqTitle">Fréquence</string>
+    <string name="magSummary">Modifier la Magnitude</string>
+    <string name="magTitle">Magnitude</string>
 
 </resources>

@@ -1,9 +1,20 @@
 package com.lp.pierrerubier.seismes;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -12,13 +23,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private int idSeisme;
+
+    private String title, url;
     private double latitude, longitude;
+
+    private TextView eqTitle, eqUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        title = getIntent().getStringExtra("title");
+        latitude = getIntent().getDoubleExtra("lat", 0.0);
+        longitude = getIntent().getDoubleExtra("long",0.0);
+        url = getIntent().getStringExtra("url");
+
+        //Affichage des infos du tremblement de terre
+        eqTitle = (TextView)findViewById(R.id.eqTitle);
+        eqTitle.setText(title);
+        eqUrl = (TextView)findViewById(R.id.eqUrl);
+        eqUrl.setText(url);
+
+        // Affichage de la carte
         setUpMapIfNeeded();
     }
 
@@ -45,15 +72,57 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
+        if (mMap == null)
+        {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+
+            if(isGoogleMapsInstalled())
+            {
+                if (mMap != null)
+                {
+                    setUpMap();
+                }
+            }
+            else
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Install Google Maps");
+                builder.setCancelable(false);
+                builder.setPositiveButton("Install", getGoogleMapsListener());
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         }
+    }
+
+    public boolean isGoogleMapsInstalled()
+    {
+        try
+        {
+            ApplicationInfo info = getPackageManager().getApplicationInfo("com.google.android.apps.maps", 0 );
+            return true;
+        }
+        catch(PackageManager.NameNotFoundException e)
+        {
+            return false;
+        }
+    }
+
+    public DialogInterface.OnClickListener getGoogleMapsListener()
+    {
+        return new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.apps.maps"));
+                startActivity(intent);
+
+                //Finish the activity so they can't circumvent the check
+                finish();
+            }
+        };
     }
 
     /**
@@ -63,11 +132,34 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        idSeisme = getIntent().getIntExtra("idSeisme", 0);
-        latitude = getIntent().getDoubleExtra("lat",0.0);
 
-        Log.d("latitude", latitude+"");
+        mMap.addMarker(new MarkerOptions().position(new LatLng(longitude, latitude)).title(title).snippet("(" + longitude + ", " + latitude + ")"));
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, 0)).title("Marker"));
+        // Move the camera instantly to hamburg with a zoom of 15.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(longitude, latitude), 5));
+
+        // Zoom in, animating the camera.
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(5), 4000, null);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.my, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.exit) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
