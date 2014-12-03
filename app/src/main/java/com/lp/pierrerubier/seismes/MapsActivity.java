@@ -3,22 +3,30 @@ package com.lp.pierrerubier.seismes;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -44,6 +52,16 @@ public class MapsActivity extends FragmentActivity {
         eqTitle.setText(title);
         eqUrl = (TextView)findViewById(R.id.eqUrl);
         eqUrl.setText(url);
+        eqUrl.setPaintFlags(eqUrl.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+
+        eqUrl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MapsActivity.this, WebSiteSeisme.class);
+                i.putExtra("url", url);
+                startActivity(i);
+            }
+        });
 
         // Affichage de la carte
         setUpMapIfNeeded();
@@ -146,6 +164,7 @@ public class MapsActivity extends FragmentActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
+
         return true;
     }
 
@@ -155,9 +174,7 @@ public class MapsActivity extends FragmentActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.exit) {
+        if (id == R.id.exit) {
             finish();
         }
         return super.onOptionsItemSelected(item);
